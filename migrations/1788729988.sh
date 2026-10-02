@@ -9,6 +9,6 @@ new_path='PATH DEFAULT=@{HOME}/.local/share/mise/shims:@{HOME}/.local/bin:/usr/l
 
 if grep -qxF "$new_path" "$pam_env" 2>/dev/null; then
   :
-elif grep -qxF "$old_path" "$pam_env" 2>/dev/null || ! grep -qE '^PATH[[:space:]]' "$pam_env" 2>/dev/null; then
+elif grep -qxF "$old_path" "$pam_env" 2>/dev/null; then
   sudo env OMARCHY_PAM_ENV_CONF="$pam_env" bash -euo pipefail "$OMARCHY_PATH/install/config/ssh-command-path.sh"
 fi

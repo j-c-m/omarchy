@@ -87,8 +87,10 @@ grep -qxF 'PATH DEFAULT=/opt/custom/bin:/usr/bin' "$pam" || fail "migration leav
 [[ ! -s $TEST_LOG ]] || fail "migration does not sudo for a hand-edited PATH" "$(cat "$TEST_LOG")"
 pass "migration leaves a hand-edited PATH alone"
 
-pam="$test_tmp/migrate-missing.conf"
+# No PATH line means someone removed Omarchy's; the earlier migration already added it.
+pam="$test_tmp/migrate-removed.conf"
 : >"$pam"
 run_migration "$pam"
-grep -qxF "$new_path" "$pam" || fail "migration writes the new PATH when none is set"
-pass "migration writes the new PATH when none is set"
+[[ ! -s $pam ]] || fail "migration does not re-add a removed PATH line" "$(cat "$pam")"
+[[ ! -s $TEST_LOG ]] || fail "migration does not sudo when there is no PATH line" "$(cat "$TEST_LOG")"
+pass "migration leaves a file with no PATH line alone"
