@@ -22,7 +22,7 @@ omarchy_path_prepend() {
   case ":$PATH:" in
     *":$_omarchy_dir:"*)
       PATH=":$PATH:"
-      PATH="${PATH%%:$_omarchy_dir:*}:${PATH#*:$_omarchy_dir:}"
+      PATH="${PATH%%:"$_omarchy_dir":*}:${PATH#*:"$_omarchy_dir":}"
       PATH="${PATH#:}"
       PATH="${PATH%:}"
       ;;

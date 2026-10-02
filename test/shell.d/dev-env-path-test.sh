@@ -109,6 +109,15 @@ empty_path=${empty_path_result[1]}
 [[ $empty_path == "$tmpdir/active/bin:$home/.local/share/mise/shims:$home/.local/bin" ]] || fail "env-bootstrap builds a clean PATH from an empty one" "actual PATH: $empty_path"
 pass "env-bootstrap builds a clean PATH from an empty one"
 
+# A HOME with glob characters must be matched literally, or the move-to-front
+# fails, PATH is doubled, and a bare "::" puts the cwd on it.
+glob_home="$tmpdir/home[1]"
+mapfile -t glob_result < <(run_bootstrap bash "$bootstrap" "$glob_home" "/usr/bin:$glob_home/.local/share/mise/shims:$glob_home/.local/bin")
+glob_path=${glob_result[1]}
+[[ $glob_path == "$tmpdir/active/bin:$glob_home/.local/share/mise/shims:$glob_home/.local/bin:/usr/bin" ]] ||
+  fail "env-bootstrap matches a HOME with glob characters literally" "actual PATH: $glob_path"
+pass "env-bootstrap matches a HOME with glob characters literally"
+
 if command -v zsh >/dev/null 2>&1; then
   mapfile -t zsh_result < <(run_bootstrap zsh "$bootstrap" "$home" "$tmpdir/unrelated/bin:/usr/bin")
   zsh_path=${zsh_result[1]}
