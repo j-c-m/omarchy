@@ -375,7 +375,7 @@ The input method's candidate window is drawn by Fcitx's classicui, from `default
 
 ## Telegram Desktop
 
-`omarchy-theme-set` renders `default/themed/colors.tdesktop-theme.tpl` into the staged theme, then `omarchy-theme-set-telegram` packs that palette and a solid chat wallpaper into `~/.local/state/omarchy/telegram/omarchy.tdesktop-palette`. The path stays put because `current/theme` is replaced on every switch, and Telegram watches the file it was given. Native `telegram-desktop` has no apply command, so the first time the file is created Omarchy asks you to open Telegram Settings, type `loadcolors`, and choose that file. Later switches rewrite it in place and a running client reloads it. The command does nothing when the package is not installed, and it never reads Telegram's `tdata`.
+`omarchy-theme-set` renders `default/themed/colors.tdesktop-theme.tpl` into the staged theme, then `omarchy-theme-set-telegram` packs that palette and a solid chat wallpaper into `~/.local/state/omarchy/telegram/omarchy.tdesktop-palette`. The path stays put because `current/theme` is replaced on every switch, and Telegram watches the file it was given. Native `telegram-desktop` has no apply command, so the first time the file is created Omarchy asks you to open Telegram Settings, type `loadcolors`, and choose that file. The same notice tells you to set Font family to Monospace once. Telegram keeps that name, so the next launch uses the font from `omarchy font set`. Later switches rewrite the palette in place and a running client reloads it. The command does nothing when the package is not installed, and it never reads Telegram's `tdata`.
 
 ## Adding or overriding theme files
 

@@ -30,7 +30,7 @@ Themes supplied with `unlock.png` and `preview-unlock.png` images will be listed
 
 ### Telegram
 
-Telegram Desktop follows the theme after you point it at the palette once. Open Settings, type `loadcolors`, and choose `~/.local/state/omarchy/telegram/omarchy.tdesktop-palette`. Keep the changes. The next theme switch updates that same file, and Telegram reloads it while it is open.
+Telegram Desktop follows the theme after you point it at the palette once. Open Settings, type `loadcolors`, and choose `~/.local/state/omarchy/telegram/omarchy.tdesktop-palette`. Keep the changes. The next theme switch updates that same file, and Telegram reloads it while it is open. Set Font family to Monospace once. The next time Telegram starts, it uses the font from `omarchy font set`.
 
 ### Theming apps Omarchy doesn't cover
 
