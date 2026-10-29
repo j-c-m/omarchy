@@ -105,6 +105,13 @@ refresh_cache() {
   rig fc-cache >/dev/null
 }
 
+# A multi-family request naming an explicit family alongside the parser's
+# shortened "sans" spelling must keep its explicit head: the sans
+# normalization rewrites only the matched spelling.
+actual_head=$(rig fc-pattern -c -f '%{family[0]}\n' "Liberation Sans,sans")
+[[ $actual_head == "Liberation Sans" ]] || fail "a multi-family request keeps its explicit head" "$actual_head"
+pass "the sans normalization preserves the rest of a multi-family request"
+
 set_generated_font "Adwaita Mono"
 refresh_cache
 check_matrix "Adwaita Mono"

@@ -28,17 +28,13 @@ fi
 # scoped form, preserving the selected font; anything else in the file is
 # the user's own and stays untouched.
 user_font="$HOME/.config/fontconfig/fonts.conf"
-# The old generated block holds exactly two family strings: the "monospace"
-# test and the selected font. Anything more is the user's own editing.
-if [[ -f $user_font ]] && grep -Fq 'prepend_first' "$user_font" &&
-  (( $(grep -c '<string>monospace</string>' "$user_font") == 1 )) &&
-  (( $(grep -c '<string>' "$user_font") == 2 )); then
+if [[ -f $user_font ]] && grep -Fq 'prepend_first' "$user_font"; then
   chosen=$(grep -o '<string>.*</string>' "$user_font" | sed -e 's/^<string>//' -e 's|</string>$||' | grep -vx 'monospace' | head -n 1)
-  if [[ -n $chosen ]]; then
-    cat >"$user_font" <<XML
-<?xml version="1.0"?>
-<!DOCTYPE fontconfig SYSTEM "fonts.dtd">
-<fontconfig>
+  old_start=$(grep -n '<match' "$user_font" | awk -F: -v pl="$(grep -n 'prepend_first' "$user_font" | head -n 1 | cut -d: -f1)" '$1 <= pl {s=$1} END {print s}')
+  old_end=$(awk -v pl="$(grep -n 'prepend_first' "$user_font" | head -n 1 | cut -d: -f1)" 'NR >= pl && /<\/match>/ {print NR; exit}' "$user_font")
+  if [[ -n $chosen && -n $old_start && -n $old_end ]]; then
+    scoped=$(mktemp)
+    cat >"$scoped" <<XML
   <match target="pattern">
     <test name="family" qual="any">
       <string>monospace</string>
@@ -50,8 +46,15 @@ if [[ -f $user_font ]] && grep -Fq 'prepend_first' "$user_font" &&
       <string>$chosen</string>
     </edit>
   </match>
-</fontconfig>
 XML
+    replaced=$(mktemp)
+    {
+      head -n $((old_start - 1)) "$user_font"
+      cat "$scoped"
+      tail -n +"$((old_end + 1))" "$user_font"
+    } >"$replaced"
+    mv "$replaced" "$user_font"
+    rm -f "$scoped"
     echo "Upgraded the generated monospace override to the scoped form (kept $chosen)"
   fi
 fi
