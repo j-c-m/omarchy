@@ -29,8 +29,9 @@ fi
 # the user's own and stays untouched.
 user_font="$HOME/.config/fontconfig/fonts.conf"
 if [[ -f $user_font ]] && grep -Fq 'prepend_first' "$user_font"; then
-  old_start=$(grep -n '<match' "$user_font" | awk -F: -v pl="$(grep -n 'prepend_first' "$user_font" | head -n 1 | cut -d: -f1)" '$1 <= pl {s=$1} END {print s}')
-  old_end=$(awk -v pl="$(grep -n 'prepend_first' "$user_font" | head -n 1 | cut -d: -f1)" 'NR >= pl && /<\/match>/ {print NR; exit}' "$user_font")
+  first_prepend=$(grep -n 'prepend_first' "$user_font" | head -n 1 | cut -d: -f1)
+  old_start=$(grep -n '<match' "$user_font" | awk -F: -v pl="$first_prepend" '$1 <= pl {s=$1} END {print s}' || true)
+  old_end=$(awk -v pl="$first_prepend" 'NR >= pl && /<\/match>/ {print NR; exit}' "$user_font" || true)
   # Only the known generated block qualifies: one monospace test plus the
   # prepend_first edit and nothing else. A custom prepend_first block, or a
   # file where another rule names the first non-monospace family, keeps
@@ -45,7 +46,14 @@ if [[ -f $user_font ]] && grep -Fq 'prepend_first' "$user_font"; then
       block_ok=true
     fi
   fi
-  chosen=$(grep -o '<string>.*</string>' <<<"${block:-}" | sed -e 's/^<string>//' -e 's|</string>$||' | grep -vx 'monospace' | head -n 1)
+  # Read the font only from a qualifying block, and tolerate an empty
+  # result: a grep pipeline with no surviving lines exits non-zero, which
+  # under the migration runner's pipefail would abort the migration and
+  # block every later one on each retry.
+  chosen=""
+  if $block_ok; then
+    chosen=$(grep -o '<string>.*</string>' <<<"$block" | sed -e 's/^<string>//' -e 's|</string>$||' | grep -vx 'monospace' | head -n 1 || true)
+  fi
   if $block_ok && [[ -n $chosen ]]; then
     scoped=$(mktemp)
     cat >"$scoped" <<XML
